@@ -132,21 +132,28 @@ particlesJS("particles-js", {
 var nodes  = document.querySelectorAll('li'),
     _nodes = [].slice.call(nodes, 0);
 
-var getDirection = function (ev, obj) {
-    var w = obj.offsetWidth,
-        h = obj.offsetHeight,
-        x = (ev.pageX - obj.offsetLeft - (w / 2) * (w > h ? (h / w) : 1)),
-        y = (ev.pageY - obj.offsetTop - (h / 2) * (h > w ? (w / h) : 1)),
-        d = Math.round( Math.atan2(y, x) / 1.57079632679 + 5 ) % 4;
+var getDirection = function(ev, obj) {
+  var w = obj.offsetWidth;
+  var h = obj.offsetHeight;
+  var min = { x: obj.offsetLeft, y: obj.offsetTop };
+  var max = { x: min.x + w, y: min.y + h };
+  var p = { x: ev.pageX, y: ev.pageY };
 
-    if(d === 0 || d === 2){
-      obj.style.perspective=(h*2).toString().concat("px");
-    } else {
-      obj.style.perspective=(w*2).toString().concat("px");
-    }
+  var ab = (p.y - min.y) * (max.x - min.x) > (max.y-min.y) * (p.x - min.x);
+  var ad = (p.y - min.y) * (max.x - min.x) > (max.y-min.y) * (max.x - p.x);
+  var d = (ab && ad ? 2 : 
+        ab && !ad ? 3 :
+        !ab && !ad ? 0 : 1);
+  
+  if(d === 0 || d === 2){
+    obj.style.perspective=(h*2).toString().concat("px");
+  } else {
+    obj.style.perspective=(w*2).toString().concat("px");
+  }
 
-    return d;
-};
+  return d;
+}
+
 
 var addClass = function ( ev, obj, state ) {
     var direction = getDirection( ev, obj ),
